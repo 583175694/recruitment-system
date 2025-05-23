@@ -31,7 +31,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   
   // 启动应用
-  await app.listen(3000);
+  await app.listen(3031);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap(); 

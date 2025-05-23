@@ -5,3 +5,6 @@
 */.env.development.local
 */.env.test.local
 */.env.production.local
+
+server-dist.tar.gz
+client-dist.tar.gz

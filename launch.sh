@@ -19,6 +19,7 @@ rm -rf dist node_modules package.json package-lock.json
 mv ../server-dist.tar.gz .
 tar -xzf server-dist.tar.gz
 
+npm install
 pm2 delete recruitment-server
 pm2 start npm --name recruitment-server -- start
 rm -rf server-dist.tar.gz
