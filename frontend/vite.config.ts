@@ -14,9 +14,10 @@ export default defineConfig({
     port: 8080,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3031',
         changeOrigin: true,
       }
-    }
+    },
+    allowedHosts: ['pipishrimp.cn', 'www.pipishrimp.cn']
   }
 }) 
