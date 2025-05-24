@@ -1,17 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { Achievement } from './achievement.entity';
-import { ExamScore } from './exam-score.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export enum Gender {
   MALE = '男',
   FEMALE = '女',
-}
-
-export enum ApplicationStatus {
-  PENDING = 'pending',
-  REVIEWING = 'reviewing',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
 }
 
 @Entity()
@@ -31,39 +22,26 @@ export class Student {
   @Column({ length: 18 })
   idNumber: string;
 
-  @Column({ length: 200 })
-  photo: string;
+  @Column({ type: 'date', nullable: true })
+  birthDate: Date;
+
+  @Column({ length: 20, nullable: true })
+  ethnicity: string;
 
   @Column({ length: 100 })
   graduationSchool: string;
 
-  @Column({ length: 50 })
-  schoolDistrict: string;
+  @Column({ length: 200, nullable: true })
+  homeAddress: string;
 
-  @OneToMany(() => ExamScore, examScore => examScore.student, { cascade: true })
-  examScores: ExamScore[];
+  @Column({ length: 50, nullable: true })
+  guardianName: string;
 
-  @OneToMany(() => Achievement, achievement => achievement.student, { cascade: true })
-  achievements: Achievement[];
+  @Column({ length: 50, nullable: true })
+  guardianRelation: string;
 
-  @Column({ length: 50 })
-  parentName: string;
-
-  @Column({ length: 100 })
-  parentWorkplace: string;
-
-  @Column({ length: 20 })
-  parentContact: string;
-
-  @Column({
-    type: 'enum',
-    enum: ApplicationStatus,
-    default: ApplicationStatus.PENDING
-  })
-  status: ApplicationStatus;
-
-  @Column({ type: 'text', nullable: true })
-  reviewComments: string;
+  @Column({ length: 20, nullable: true })
+  guardianContact: string;
 
   @CreateDateColumn()
   createdAt: Date;

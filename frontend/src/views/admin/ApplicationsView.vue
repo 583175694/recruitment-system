@@ -11,23 +11,10 @@
         <el-form-item label="身份证号">
           <el-input v-model="searchForm.idNumber" placeholder="请输入身份证号" clearable @clear="handleSearch" />
         </el-form-item>
-        <el-form-item label="学校区域" style="width: 200px">
-          <el-select v-model="searchForm.schoolDistrict" placeholder="请选择学校区域" clearable @clear="handleSearch" style="width: 100%">
-            <el-option label="海淀区" value="海淀区"></el-option>
-            <el-option label="朝阳区" value="朝阳区"></el-option>
-            <el-option label="东城区" value="东城区"></el-option>
-            <el-option label="西城区" value="西城区"></el-option>
-            <el-option label="丰台区" value="丰台区"></el-option>
-            <el-option label="石景山区" value="石景山区"></el-option>
-            <el-option label="其他区域" value="其他区域"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="申请状态" style="width: 200px">
-          <el-select v-model="searchForm.status" placeholder="请选择申请状态" clearable @clear="handleSearch" style="width: 100%">
-            <el-option label="待审核" value="pending"></el-option>
-            <el-option label="审核中" value="reviewing"></el-option>
-            <el-option label="已录取" value="approved"></el-option>
-            <el-option label="已拒绝" value="rejected"></el-option>
+        <el-form-item label="性别" style="width: 200px">
+          <el-select v-model="searchForm.gender" placeholder="请选择性别" clearable @clear="handleSearch" style="width: 100%">
+            <el-option label="男" value="男"></el-option>
+            <el-option label="女" value="女"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -44,32 +31,17 @@
         <el-table-column prop="name" label="姓名" width="120" />
         <el-table-column prop="gender" label="性别" width="80" />
         <el-table-column prop="idNumber" label="身份证号" width="180" />
+        <el-table-column prop="ethnicity" label="民族" width="100" />
         <el-table-column prop="graduationSchool" label="毕业学校" min-width="150" />
-        <el-table-column prop="schoolDistrict" label="所属区域" width="120" />
-        <el-table-column prop="status" label="申请状态" width="120">
-          <template #default="scope">
-            <el-tag :type="getStatusType(scope.row.status)" effect="plain">
-              {{ getStatusText(scope.row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
+        <el-table-column prop="guardianName" label="监护人" width="120" />
         <el-table-column prop="createdAt" label="申请时间" width="180">
           <template #default="scope">
             {{ formatDate(scope.row.createdAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" fixed="right" width="280">
+        <el-table-column label="操作" fixed="right" width="120">
           <template #default="scope">
             <el-button type="primary" size="small" @click="viewApplication(scope.row.id)" :icon="View">查看</el-button>
-            <el-button 
-              type="success" 
-              size="small" 
-              v-if="scope.row.status === 'pending'"
-              @click="changeStatus(scope.row.id, 'reviewing')"
-              :icon="Edit"
-            >
-              开始审核
-            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -94,9 +66,9 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { getApplications, updateApplicationStatus } from '@/api/admin';
-import { Search, Refresh, View, Edit } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import { getApplications } from '@/api/admin';
+import { Search, Refresh, View } from '@element-plus/icons-vue';
 
 const router = useRouter();
 const loading = ref(false);
@@ -106,14 +78,13 @@ const applications = ref([]);
 const searchForm = reactive({
   name: '',
   idNumber: '',
-  schoolDistrict: '',
-  status: ''
+  gender: ''
 });
 
 // 监听搜索表单变化，实时更新UI
-watch(() => [searchForm.schoolDistrict, searchForm.status], () => {
+watch(() => [searchForm.gender], () => {
   // 防止表单值被清空后触发搜索
-  if (searchForm.schoolDistrict !== undefined && searchForm.status !== undefined) {
+  if (searchForm.gender !== undefined) {
     handleSearch();
   }
 });
@@ -124,28 +95,6 @@ const pagination = reactive({
   pageSize: 10,
   total: 0
 });
-
-// 获取申请状态类型
-const getStatusType = (status: string) => {
-  switch (status) {
-    case 'pending': return 'warning';
-    case 'reviewing': return 'primary';
-    case 'approved': return 'success';
-    case 'rejected': return 'danger';
-    default: return 'info';
-  }
-};
-
-// 获取申请状态文本
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'pending': return '待审核';
-    case 'reviewing': return '审核中';
-    case 'approved': return '已录取';
-    case 'rejected': return '已拒绝';
-    default: return '未知';
-  }
-};
 
 // 格式化日期
 const formatDate = (dateString: string) => {
@@ -185,30 +134,6 @@ const loadApplications = async () => {
 // 查看申请详情
 const viewApplication = (id: number) => {
   router.push(`/admin/applications/${id}`);
-};
-
-// 更改申请状态
-const changeStatus = async (id: number, status: string) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要将申请状态更改为"${getStatusText(status)}"吗？`,
-      '确认操作',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
-    
-    await updateApplicationStatus(id, status);
-    ElMessage.success('状态更新成功');
-    loadApplications(); // 重新加载数据
-  } catch (error: any) {
-    if (error !== 'cancel') {
-      console.error('更新状态失败', error);
-      ElMessage.error('更新状态失败');
-    }
-  }
 };
 
 // 搜索处理

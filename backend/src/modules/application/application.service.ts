@@ -1,9 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Student, ApplicationStatus, Gender } from '../../entity/student.entity';
-import { ExamScore, Subject } from '../../entity/exam-score.entity';
-import { Achievement } from '../../entity/achievement.entity';
+import { Student, Gender } from '../../entity/student.entity';
 import { CreateApplicationDto } from './dto/create-application.dto';
 
 @Injectable()
@@ -11,16 +9,10 @@ export class ApplicationService {
   constructor(
     @InjectRepository(Student)
     private studentRepository: Repository<Student>,
-    @InjectRepository(ExamScore)
-    private examScoreRepository: Repository<ExamScore>,
-    @InjectRepository(Subject)
-    private subjectRepository: Repository<Subject>,
-    @InjectRepository(Achievement)
-    private achievementRepository: Repository<Achievement>,
   ) {}
 
   async create(createApplicationDto: CreateApplicationDto): Promise<Student> {
-    const { examScores, achievements, ...studentData } = createApplicationDto;
+    const studentData = createApplicationDto;
 
     // 检查身份证号是否已存在
     const existingStudent = await this.studentRepository.findOne({
@@ -34,71 +26,18 @@ export class ApplicationService {
     // 创建学生记录
     const student = this.studentRepository.create({
       ...studentData,
-      status: ApplicationStatus.PENDING,
+      birthDate: studentData.birthDate ? new Date(studentData.birthDate) : null,
     });
     
     await this.studentRepository.save(student);
 
-    // 保存考试成绩
-    if (examScores && examScores.length > 0) {
-      for (const scoreDto of examScores) {
-        // 创建考试记录
-        const examScore = this.examScoreRepository.create({
-          gradeLevel: scoreDto.gradeLevel,
-          certificateImage: scoreDto.certificateImage,
-          student: student,
-        });
-        
-        // 保存考试记录
-        const savedExamScore = await this.examScoreRepository.save(examScore);
-        
-        // 处理每个科目
-        if (scoreDto.subjects && scoreDto.subjects.length > 0) {
-          const subjectEntities = scoreDto.subjects.map(subjectDto => {
-            // 将score从string转换为number
-            const scoreValue = subjectDto.score ? parseFloat(subjectDto.score) : null;
-            
-            return this.subjectRepository.create({
-              name: subjectDto.name,
-              scoreType: subjectDto.scoreType,
-              score: scoreValue,
-              grade: subjectDto.grade,
-              examScore: savedExamScore,
-            });
-          });
-          
-          await this.subjectRepository.save(subjectEntities);
-        }
-      }
-    }
-
-    // 保存荣誉成就
-    if (achievements && achievements.length > 0) {
-      // 过滤掉空的荣誉项（没有填写name或其他必填字段的项）
-      const validAchievements = achievements.filter(ach => 
-        ach.name && ach.level && ach.awardDate && ach.certificateImage
-      );
-      
-      if (validAchievements.length > 0) {
-        const achievementEntities = validAchievements.map(achievementDto =>
-          this.achievementRepository.create({
-            ...achievementDto,
-            awardDate: new Date(achievementDto.awardDate),
-            student,
-          }),
-        );
-        await this.achievementRepository.save(achievementEntities);
-      }
-    }
-
-    // 重新加载包含关联数据的学生
+    // 返回创建的学生记录
     return this.findById(student.id);
   }
 
   async findById(id: number): Promise<Student> {
     const student = await this.studentRepository.findOne({
       where: { id },
-      relations: ['examScores', 'examScores.subjects', 'achievements'],
     });
 
     if (!student) {
@@ -109,29 +48,22 @@ export class ApplicationService {
   }
 
   async findAll(filters?: any): Promise<{ students: Student[]; total: number }> {
-    const { status, name, graduationSchool, schoolDistrict, page = 1, limit = 10 } = filters || {};
+    const { name, gender, graduationSchool, page = 1, limit = 10 } = filters || {};
     
     const queryBuilder = this.studentRepository.createQueryBuilder('student')
-      .leftJoinAndSelect('student.examScores', 'examScores')
-      .leftJoinAndSelect('examScores.subjects', 'subjects')
-      .leftJoinAndSelect('student.achievements', 'achievements')
       .orderBy('student.createdAt', 'DESC');
-    
-    if (status) {
-      queryBuilder.andWhere('student.status = :status', { status });
-    }
     
     if (name) {
       queryBuilder.andWhere('student.name LIKE :name', { name: `%${name}%` });
     }
     
+    if (gender) {
+      queryBuilder.andWhere('student.gender = :gender', { gender });
+    }
+    
     if (graduationSchool) {
       queryBuilder.andWhere('student.graduationSchool LIKE :graduationSchool', 
         { graduationSchool: `%${graduationSchool}%` });
-    }
-    
-    if (schoolDistrict) {
-      queryBuilder.andWhere('student.schoolDistrict = :schoolDistrict', { schoolDistrict });
     }
     
     // 计算分页
@@ -147,17 +79,6 @@ export class ApplicationService {
       .getMany();
     
     return { students, total };
-  }
-
-  async updateStatus(id: number, status: ApplicationStatus, reviewComments?: string): Promise<Student> {
-    const student = await this.findById(id);
-    
-    student.status = status;
-    if (reviewComments) {
-      student.reviewComments = reviewComments;
-    }
-    
-    return this.studentRepository.save(student);
   }
 
   // 身份证号验证

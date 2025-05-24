@@ -1,18 +1,14 @@
-import { Controller, Post, Body, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { ApplicationStatus } from '../../entity/student.entity';
 import { UserRole } from '../../entity/user.entity';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Post('applications/:id/status')
-  async updateApplicationStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { status: ApplicationStatus; reviewComments?: string },
-  ) {
-    return this.adminService.updateApplicationStatus(id, body.status, body.reviewComments);
+  @Get('applications/:id')
+  async getApplication(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.getApplication(id);
   }
 
   @Get('statistics')

@@ -5,15 +5,13 @@ import { ApplicationService } from './application.service';
 import { Student } from '../../entity/student.entity';
 import { ExamScore, Subject } from '../../entity/exam-score.entity';
 import { Achievement } from '../../entity/achievement.entity';
-import { ResumeAnalysisService } from './resume-analysis.service';
-import { Resume } from '../../entity/resume.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Student, ExamScore, Subject, Achievement, Resume]),
+    TypeOrmModule.forFeature([Student, ExamScore, Subject, Achievement]),
   ],
   controllers: [ApplicationController],
-  providers: [ApplicationService, ResumeAnalysisService],
+  providers: [ApplicationService],
   exports: [ApplicationService],
 })
 export class ApplicationModule {} 

@@ -14,7 +14,7 @@ export class Achievement {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Student, student => student.achievements)
+  @ManyToOne(() => Student)
   @JoinColumn({ name: 'student_id' })
   student: Student;
 

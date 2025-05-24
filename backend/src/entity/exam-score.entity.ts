@@ -23,7 +23,7 @@ export class ExamScore {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Student, student => student.examScores)
+  @ManyToOne(() => Student)
   @JoinColumn({ name: 'student_id' })
   student: Student;
 

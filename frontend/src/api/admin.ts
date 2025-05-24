@@ -32,12 +32,7 @@ export const getApplications = (params?: any) => {
 
 // 获取单个申请
 export const getApplication = (id: number) => {
-  return adminApi.get(`/applications/${id}`)
-}
-
-// 更新申请状态
-export const updateApplicationStatus = (id: number, status: string, reviewComments?: string) => {
-  return adminApi.post(`/admin/applications/${id}/status`, { status, reviewComments })
+  return adminApi.get(`/admin/applications/${id}`)
 }
 
 // 获取统计数据
