@@ -28,7 +28,7 @@ async function bootstrap() {
   app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
   
   // 设置全局前缀
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('recruitment-api');
   
   // 启动应用
   await app.listen(3031);

@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     port: 8080,
     proxy: {
-      '/api': {
+      '/recruitment-api': {
         target: 'http://localhost:3031',
         changeOrigin: true,
       }
