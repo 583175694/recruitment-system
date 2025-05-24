@@ -15,7 +15,7 @@ export default defineConfig({
     port: 8080,
     proxy: {
       '/recruitment-api': {
-        target: 'https//pipishrimp.cn',
+        target: 'https://pipishrimp.cn',
         changeOrigin: true,
       }
     },
