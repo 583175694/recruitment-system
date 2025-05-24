@@ -9,5 +9,4 @@ cd ../backend
 npm run build
 COPYFILE_DISABLE=1 tar --no-xattrs -czf server-dist.tar.gz dist node_modules package.json package-lock.json
 cd ..
-scp ./frontend/client-dist.tar.gz ubuntu@175.178.23.83:/www/recruitment-system/
-scp ./backend/server-dist.tar.gz ubuntu@175.178.23.83:/www/recruitment-system/
+scp ./frontend/client-dist.tar.gz ./backend/server-dist.tar.gz ubuntu@175.178.23.83:/www/recruitment-system/
