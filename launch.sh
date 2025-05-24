@@ -5,10 +5,6 @@ cd frontend
 rm -rf dist node_modules package.json package-lock.json
 mv ../client-dist.tar.gz .
 tar -xzf client-dist.tar.gz
-
-# 重启客户端
-pm2 delete recruitment-client
-pm2 start npm --name recruitment-client -- start
 rm -rf client-dist.tar.gz
 
 # 服务端
