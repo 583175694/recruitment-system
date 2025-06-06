@@ -1,12 +1,12 @@
 <template>
   <div class="application-container">
     <div class="application-header">
-      <h1>学生招生个人信息表</h1>
+      <h1>学生个人信息表</h1>
       <!-- 表单进度提示 -->
       <div class="progress-container">
-        <el-progress 
-          :percentage="formProgress" 
-          :stroke-width="6" 
+        <el-progress
+          :percentage="formProgress"
+          :stroke-width="6"
           :show-text="false"
           class="form-progress"
         />
@@ -47,8 +47,8 @@
         <!-- 学生基本信息 -->
         <h3>学生信息</h3>
         <el-form-item label="姓名" prop="name" required>
-          <el-input 
-            v-model="form.name" 
+          <el-input
+            v-model="form.name"
             placeholder="请输入学生姓名"
             maxlength="20"
             show-word-limit
@@ -148,8 +148,8 @@
         <!-- 监护人信息 -->
         <h3>监护人信息</h3>
         <el-form-item label="监护人姓名" prop="guardianName" required>
-          <el-input 
-            v-model="form.guardianName" 
+          <el-input
+            v-model="form.guardianName"
             placeholder="请输入监护人姓名"
             maxlength="20"
             show-word-limit
@@ -190,29 +190,25 @@
 
         <!-- 表单底部按钮 -->
         <el-form-item class="submit-button">
-          <el-button 
-            type="primary" 
-            @click="submitForm" 
-            :loading="loading" 
+          <el-button
+            type="primary"
+            @click="submitForm"
+            :loading="loading"
             size="large"
             :icon="Document"
           >
-            {{ loading ? '提交中...' : '提交个人信息表' }}
+            {{ loading ? "提交中..." : "提交个人信息表" }}
           </el-button>
-          <el-button 
-            @click="resetForm" 
-            size="large"
-            :icon="RefreshLeft"
-          >
+          <el-button @click="resetForm" size="large" :icon="RefreshLeft">
             重置表单
           </el-button>
-          <el-button 
-            @click="saveDraft" 
+          <el-button
+            @click="saveDraft"
             :loading="draftSaving"
             size="large"
             :icon="FolderOpened"
           >
-            {{ draftSaving ? '保存中...' : '保存草稿' }}
+            {{ draftSaving ? "保存中..." : "保存草稿" }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -221,19 +217,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, onMounted, onUnmounted, computed, watch, nextTick } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  createApplication,
-} from "@/api/application";
-import { debounce } from '@/utils/debounce';
-import ErrorMessage from '@/components/ErrorMessage.vue';
-import { 
-  Document, 
-  RefreshLeft, 
+  defineComponent,
+  reactive,
+  ref,
+  onMounted,
+  onUnmounted,
+  computed,
+  watch,
+  nextTick,
+} from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { createApplication } from "@/api/application";
+import { debounce } from "@/utils/debounce";
+import ErrorMessage from "@/components/ErrorMessage.vue";
+import {
+  Document,
+  RefreshLeft,
   FolderOpened,
-  InfoFilled
-} from '@element-plus/icons-vue';
+  InfoFilled,
+} from "@element-plus/icons-vue";
 
 // 类型定义
 interface FormData {
@@ -256,7 +259,7 @@ export default defineComponent({
     Document,
     RefreshLeft,
     FolderOpened,
-    InfoFilled
+    InfoFilled,
   },
   setup() {
     const form = reactive<FormData>({
@@ -269,7 +272,7 @@ export default defineComponent({
       homeAddress: "",
       guardianName: "",
       guardianRelation: "",
-      guardianContact: ""
+      guardianContact: "",
     });
 
     // 状态管理
@@ -279,11 +282,13 @@ export default defineComponent({
     const formErrors = ref<Record<string, string[]>>({});
     const autoSaveStatus = ref("");
     const autoSaveType = ref<"success" | "warning" | "error">("success");
-    
+
     // 响应式处理
     const windowWidth = ref(window.innerWidth);
     const isMobile = computed(() => windowWidth.value < 768);
-    const formLabelPosition = computed(() => isMobile.value ? "top" : "right");
+    const formLabelPosition = computed(() =>
+      isMobile.value ? "top" : "right"
+    );
 
     // 表单进度计算
     const formProgress = computed(() => {
@@ -292,13 +297,22 @@ export default defineComponent({
 
       // 基本信息和监护人信息
       const allFields = [
-        'name', 'gender', 'idNumber', 'birthDate', 'ethnicity', 
-        'graduationSchool', 'homeAddress', 'guardianName', 
-        'guardianRelation', 'guardianContact'
+        "name",
+        "gender",
+        "idNumber",
+        "birthDate",
+        "ethnicity",
+        "graduationSchool",
+        "homeAddress",
+        "guardianName",
+        "guardianRelation",
+        "guardianContact",
       ];
-      
+
       totalFields = allFields.length;
-      filledFields = allFields.filter(field => form[field as keyof FormData]).length;
+      filledFields = allFields.filter(
+        (field) => form[field as keyof FormData]
+      ).length;
 
       return Math.round((filledFields / totalFields) * 100);
     });
@@ -307,39 +321,36 @@ export default defineComponent({
     const rules = {
       name: [
         { required: true, message: "请输入学生姓名", trigger: "blur" },
-        { min: 2, max: 20, message: "姓名长度应为2-20个字符", trigger: "blur" }
+        { min: 2, max: 20, message: "姓名长度应为2-20个字符", trigger: "blur" },
       ],
-      gender: [
-        { required: true, message: "请选择性别", trigger: "change" }
-      ],
+      gender: [{ required: true, message: "请选择性别", trigger: "change" }],
       idNumber: [
         { required: true, message: "请输入身份证号", trigger: "blur" },
         {
-          pattern: /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9X]$/,
+          pattern:
+            /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9X]$/,
           message: "身份证号格式不正确",
           trigger: "blur",
         },
       ],
       birthDate: [
-        { required: true, message: "请选择出生日期", trigger: "change" }
+        { required: true, message: "请选择出生日期", trigger: "change" },
       ],
-      ethnicity: [
-        { required: true, message: "请选择民族", trigger: "change" }
-      ],
+      ethnicity: [{ required: true, message: "请选择民族", trigger: "change" }],
       graduationSchool: [
         { required: true, message: "请输入毕业学校", trigger: "blur" },
-        { max: 50, message: "学校名称不能超过50个字符", trigger: "blur" }
+        { max: 50, message: "学校名称不能超过50个字符", trigger: "blur" },
       ],
       homeAddress: [
         { required: true, message: "请输入家庭住址", trigger: "blur" },
-        { max: 200, message: "地址不能超过200个字符", trigger: "blur" }
+        { max: 200, message: "地址不能超过200个字符", trigger: "blur" },
       ],
       guardianName: [
         { required: true, message: "请输入监护人姓名", trigger: "blur" },
-        { min: 2, max: 20, message: "姓名长度应为2-20个字符", trigger: "blur" }
+        { min: 2, max: 20, message: "姓名长度应为2-20个字符", trigger: "blur" },
       ],
       guardianRelation: [
-        { required: true, message: "请选择与学生的关系", trigger: "change" }
+        { required: true, message: "请选择与学生的关系", trigger: "change" },
       ],
       guardianContact: [
         { required: true, message: "请输入联系电话", trigger: "blur" },
@@ -358,16 +369,21 @@ export default defineComponent({
 
     // 自动保存功能
     const autoSave = debounce(() => {
-      if (formProgress.value > 10) { // 只有在填写了一定内容后才自动保存
+      if (formProgress.value > 10) {
+        // 只有在填写了一定内容后才自动保存
         saveDraft(true);
       }
     }, 3000);
 
     // 监听表单变化
-    watch(form, () => {
-      formErrors.value = {}; // 清空错误信息
-      autoSave();
-    }, { deep: true });
+    watch(
+      form,
+      () => {
+        formErrors.value = {}; // 清空错误信息
+        autoSave();
+      },
+      { deep: true }
+    );
 
     // 响应式窗口大小
     const handleResize = debounce(() => {
@@ -375,7 +391,11 @@ export default defineComponent({
     }, 200);
 
     // 表单验证监听
-    const onFormValidate = (prop: string, isValid: boolean, message: string) => {
+    const onFormValidate = (
+      prop: string,
+      isValid: boolean,
+      message: string
+    ) => {
       if (isValid) {
         // 如果验证通过，清除该字段的错误信息
         if (formErrors.value[prop]) {
@@ -391,41 +411,40 @@ export default defineComponent({
       try {
         loading.value = true;
         formErrors.value = {};
-        
+
         // 表单验证
         await applicationForm.value.validate();
 
         // 处理表单数据
         const formToSubmit = { ...form };
-        
+
         // 提交数据
         await createApplication(formToSubmit);
 
         ElMessage.success("个人信息表提交成功！");
-        
+
         // 清除本地存储的草稿
-        localStorage.removeItem('application_draft');
-        
+        localStorage.removeItem("application_draft");
+
         // 可以跳转到成功页面
         // router.push('/application/success');
-        
       } catch (error: any) {
         console.error("提交失败", error);
-        
+
         if (error.response?.data?.validationErrors) {
           const errors = error.response.data.validationErrors || {};
-          
+
           // 确保错误格式正确
-          Object.keys(errors).forEach(key => {
+          Object.keys(errors).forEach((key) => {
             if (!Array.isArray(errors[key])) {
               errors[key] = [errors[key]];
             }
           });
-          
+
           formErrors.value = errors;
-          
+
           ElMessage.error("表单验证失败，请检查输入内容");
-          
+
           // 滚动到第一个错误
           nextTick(() => {
             const firstErrorEl = document.querySelector(".is-error");
@@ -437,7 +456,9 @@ export default defineComponent({
             }
           });
         } else {
-          ElMessage.error(error.response?.data?.message || "提交失败，请稍后重试");
+          ElMessage.error(
+            error.response?.data?.message || "提交失败，请稍后重试"
+          );
         }
       } finally {
         loading.value = false;
@@ -450,17 +471,20 @@ export default defineComponent({
         if (!isAuto) {
           draftSaving.value = true;
         }
-        
+
         // 保存到本地存储
-        localStorage.setItem('application_draft', JSON.stringify({
-          form,
-          timestamp: Date.now()
-        }));
-        
+        localStorage.setItem(
+          "application_draft",
+          JSON.stringify({
+            form,
+            timestamp: Date.now(),
+          })
+        );
+
         if (isAuto) {
           autoSaveStatus.value = "已自动保存";
           autoSaveType.value = "success";
-          
+
           // 3秒后隐藏提示
           setTimeout(() => {
             autoSaveStatus.value = "";
@@ -488,12 +512,12 @@ export default defineComponent({
     const resetForm = async () => {
       try {
         await ElMessageBox.confirm(
-          '确定要重置表单吗？这将清空所有已填写的内容。',
-          '确认重置',
+          "确定要重置表单吗？这将清空所有已填写的内容。",
+          "确认重置",
           {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
           }
         );
 
@@ -512,14 +536,14 @@ export default defineComponent({
           homeAddress: "",
           guardianName: "",
           guardianRelation: "",
-          guardianContact: ""
+          guardianContact: "",
         });
 
         // 清空错误信息和状态
         formErrors.value = {};
-        
+
         // 清除本地存储
-        localStorage.removeItem('application_draft');
+        localStorage.removeItem("application_draft");
 
         ElMessage.success("表单已重置");
 
@@ -534,36 +558,40 @@ export default defineComponent({
     // 加载草稿
     const loadDraft = () => {
       try {
-        const draft = localStorage.getItem('application_draft');
+        const draft = localStorage.getItem("application_draft");
         if (draft) {
           const draftData = JSON.parse(draft);
           const timeDiff = Date.now() - draftData.timestamp;
-          
+
           // 如果草稿超过7天，删除它
           if (timeDiff > 7 * 24 * 60 * 60 * 1000) {
-            localStorage.removeItem('application_draft');
+            localStorage.removeItem("application_draft");
             return;
           }
-          
+
           // 询问用户是否恢复草稿
           ElMessageBox.confirm(
-            `发现本地保存的草稿（${new Date(draftData.timestamp).toLocaleString()}），是否恢复？`,
-            '恢复草稿',
+            `发现本地保存的草稿（${new Date(
+              draftData.timestamp
+            ).toLocaleString()}），是否恢复？`,
+            "恢复草稿",
             {
-              confirmButtonText: '恢复',
-              cancelButtonText: '忽略',
-              type: 'info',
+              confirmButtonText: "恢复",
+              cancelButtonText: "忽略",
+              type: "info",
             }
-          ).then(() => {
-            Object.assign(form, draftData.form);
-            ElMessage.success("草稿已恢复");
-          }).catch(() => {
-            localStorage.removeItem('application_draft');
-          });
+          )
+            .then(() => {
+              Object.assign(form, draftData.form);
+              ElMessage.success("草稿已恢复");
+            })
+            .catch(() => {
+              localStorage.removeItem("application_draft");
+            });
         }
       } catch (error) {
         console.error("加载草稿失败", error);
-        localStorage.removeItem('application_draft');
+        localStorage.removeItem("application_draft");
       }
     };
 
@@ -581,7 +609,7 @@ export default defineComponent({
       // 数据
       form,
       rules,
-      
+
       // 状态
       loading,
       draftSaving,
@@ -590,17 +618,17 @@ export default defineComponent({
       autoSaveStatus,
       autoSaveType,
       formProgress,
-      
+
       // 响应式
       isMobile,
       formLabelPosition,
-      
+
       // 方法
       submitForm,
       resetForm,
       saveDraft,
       disabledDate,
-      onFormValidate
+      onFormValidate,
     };
   },
 });

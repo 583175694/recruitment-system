@@ -1,39 +1,104 @@
 <template>
   <div class="applications-container">
     <h1 class="page-title">申请列表</h1>
-    
+
     <!-- 搜索和筛选区域 -->
     <el-card class="search-card">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="学生姓名">
-          <el-input v-model="searchForm.name" placeholder="请输入学生姓名" clearable @clear="handleSearch" />
+          <el-input
+            v-model="searchForm.name"
+            placeholder="请输入学生姓名"
+            clearable
+            @clear="handleSearch"
+          />
         </el-form-item>
         <el-form-item label="身份证号">
-          <el-input v-model="searchForm.idNumber" placeholder="请输入身份证号" clearable @clear="handleSearch" />
+          <el-input
+            v-model="searchForm.idNumber"
+            placeholder="请输入身份证号"
+            clearable
+            @clear="handleSearch"
+          />
         </el-form-item>
         <el-form-item label="性别" style="width: 200px">
-          <el-select v-model="searchForm.gender" placeholder="请选择性别" clearable @clear="handleSearch" style="width: 100%">
+          <el-select
+            v-model="searchForm.gender"
+            placeholder="请选择性别"
+            clearable
+            @clear="handleSearch"
+            style="width: 100%"
+          >
             <el-option label="男" value="男"></el-option>
             <el-option label="女" value="女"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch" :icon="Search">搜索</el-button>
+          <el-button type="primary" @click="handleSearch" :icon="Search"
+            >搜索</el-button
+          >
           <el-button @click="resetSearch" :icon="Refresh">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    
+
     <!-- 申请列表 -->
     <el-card class="application-list-card">
-      <el-table :data="applications" style="width: 100%" v-loading="loading" border stripe highlight-current-row>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="gender" label="性别" width="80" />
+      <el-table
+        :data="applications"
+        style="width: 100%"
+        v-loading="loading"
+        border
+        stripe
+        highlight-current-row
+      >
+        <el-table-column type="expand">
+          <template #default="props">
+            <el-card class="expanded-info" shadow="never">
+              <el-row :gutter="20">
+                <el-col :span="24">
+                  <h4>家庭和联系信息</h4>
+                  <el-descriptions :column="2" border size="small">
+                    <el-descriptions-item label="家庭住址">{{
+                      props.row.homeAddress || "未提供"
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="出生年月">{{
+                      formatDate(props.row.birthDate, false) || "未提供"
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="监护人姓名">{{
+                      props.row.guardianName || "未提供"
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="与学生关系">{{
+                      props.row.guardianRelation || "未提供"
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="联系电话">{{
+                      props.row.guardianContact || "未提供"
+                    }}</el-descriptions-item>
+                  </el-descriptions>
+                </el-col>
+              </el-row>
+            </el-card>
+          </template>
+        </el-table-column>
+        <el-table-column prop="id" label="ID" width="60" />
+        <el-table-column prop="name" label="姓名" width="100" />
+        <el-table-column prop="gender" label="性别" width="60" />
         <el-table-column prop="idNumber" label="身份证号" width="180" />
-        <el-table-column prop="ethnicity" label="民族" width="100" />
-        <el-table-column prop="graduationSchool" label="毕业学校" min-width="150" />
-        <el-table-column prop="guardianName" label="监护人" width="120" />
+        <el-table-column prop="ethnicity" label="民族" width="80" />
+        <el-table-column prop="birthDate" label="出生日期" width="120">
+          <template #default="scope">
+            {{ formatDate(scope.row.birthDate, false) }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="graduationSchool"
+          label="毕业学校"
+          min-width="150"
+        />
+        <el-table-column prop="homeAddress" label="家庭住址" min-width="200" />
+        <el-table-column prop="guardianName" label="监护人" width="100" />
+        <el-table-column prop="guardianRelation" label="关系" width="80" />
+        <el-table-column prop="guardianContact" label="联系电话" width="120" />
         <el-table-column prop="createdAt" label="申请时间" width="180">
           <template #default="scope">
             {{ formatDate(scope.row.createdAt) }}
@@ -41,11 +106,17 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="120">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="viewApplication(scope.row.id)" :icon="View">查看</el-button>
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleDelete(scope.row.id, scope.row.name)"
+              :icon="Delete"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
-      
+
       <!-- 分页 -->
       <div class="pagination-container">
         <el-pagination
@@ -60,72 +131,118 @@
         />
       </div>
     </el-card>
+
+    <!-- 删除确认对话框 -->
+    <el-dialog
+      v-model="deleteDialogVisible"
+      title="确认删除"
+      width="30%"
+      center
+    >
+      <span
+        >确定要删除
+        <strong>{{ studentToDelete.name }}</strong>
+        的申请记录吗？此操作不可恢复！</span
+      >
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="deleteDialogVisible = false">取消</el-button>
+          <el-button
+            type="danger"
+            @click="confirmDelete"
+            :loading="deleteLoading"
+          >
+            确认删除
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { getApplications } from '@/api/admin';
-import { Search, Refresh, View } from '@element-plus/icons-vue';
+import { ref, reactive, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { getApplications, deleteApplication } from "@/api/admin";
+import { Search, Refresh, Delete } from "@element-plus/icons-vue";
 
 const router = useRouter();
 const loading = ref(false);
 const applications = ref([]);
 
+// 删除相关
+const deleteDialogVisible = ref(false);
+const deleteLoading = ref(false);
+const studentToDelete = reactive({
+  id: 0,
+  name: "",
+});
+
 // 搜索表单
 const searchForm = reactive({
-  name: '',
-  idNumber: '',
-  gender: ''
+  name: "",
+  idNumber: "",
+  gender: "",
 });
 
 // 监听搜索表单变化，实时更新UI
-watch(() => [searchForm.gender], () => {
-  // 防止表单值被清空后触发搜索
-  if (searchForm.gender !== undefined) {
-    handleSearch();
+watch(
+  () => [searchForm.gender],
+  () => {
+    // 防止表单值被清空后触发搜索
+    if (searchForm.gender !== undefined) {
+      handleSearch();
+    }
   }
-});
+);
 
 // 分页信息
 const pagination = reactive({
   currentPage: 1,
   pageSize: 10,
-  total: 0
+  total: 0,
 });
 
 // 格式化日期
-const formatDate = (dateString: string) => {
-  if (!dateString) return '';
+const formatDate = (dateString: string, showTime = true) => {
+  if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleString('zh-CN', { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+
+  if (showTime) {
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } else {
+    return date.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  }
 };
 
 // 加载申请列表
 const loadApplications = async () => {
   try {
     loading.value = true;
-    
+
     const params = {
       page: pagination.currentPage,
       limit: pagination.pageSize,
-      ...searchForm
+      ...searchForm,
     };
-    
+
     const response = await getApplications(params);
     applications.value = response.data.students || [];
     pagination.total = response.data.total || 0;
   } catch (error) {
-    console.error('获取申请列表失败', error);
-    ElMessage.error('获取申请列表失败');
+    console.error("获取申请列表失败", error);
+    ElMessage.error("获取申请列表失败");
   } finally {
     loading.value = false;
   }
@@ -144,8 +261,8 @@ const handleSearch = () => {
 
 // 重置搜索
 const resetSearch = () => {
-  Object.keys(searchForm).forEach(key => {
-    searchForm[key] = '';
+  Object.keys(searchForm).forEach((key) => {
+    searchForm[key] = "";
   });
   handleSearch();
 };
@@ -160,6 +277,30 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   pagination.currentPage = val;
   loadApplications();
+};
+
+// 处理删除
+const handleDelete = (id: number, name: string) => {
+  studentToDelete.id = id;
+  studentToDelete.name = name;
+  deleteDialogVisible.value = true;
+};
+
+// 确认删除
+const confirmDelete = async () => {
+  try {
+    deleteLoading.value = true;
+    await deleteApplication(studentToDelete.id);
+    ElMessage.success(`已成功删除${studentToDelete.name}的申请记录`);
+    deleteDialogVisible.value = false;
+    // 重新加载数据
+    loadApplications();
+  } catch (error) {
+    console.error("删除申请记录失败", error);
+    ElMessage.error("删除申请记录失败");
+  } finally {
+    deleteLoading.value = false;
+  }
 };
 
 // 组件挂载时加载数据
@@ -209,6 +350,20 @@ onMounted(() => {
   box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.1);
 }
 
+.expanded-info {
+  padding: 10px;
+  margin: 10px;
+  background-color: #f9f9f9;
+}
+
+.expanded-info h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #606266;
+  border-left: 3px solid #409eff;
+  padding-left: 10px;
+}
+
 .pagination-container {
   margin-top: 20px;
   display: flex;
@@ -220,20 +375,20 @@ onMounted(() => {
   .search-form {
     flex-direction: column;
   }
-  
+
   .search-form .el-form-item {
     margin-right: 0;
     width: 100%;
   }
-  
+
   .el-table {
     font-size: 12px;
   }
-  
+
   .el-button--small {
     padding: 5px 10px;
   }
-  
+
   .pagination-container {
     justify-content: center;
   }

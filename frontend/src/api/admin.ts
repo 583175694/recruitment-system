@@ -1,48 +1,53 @@
-import axios from 'axios'
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 // 创建axios实例
 const adminApi = axios.create({
   baseURL: API_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
-  }
-})
+    "Content-Type": "application/json",
+  },
+});
 
 // 请求拦截器 - 添加token到header
 adminApi.interceptors.request.use(
-  config => {
-    const token = localStorage.getItem('token')
+  (config) => {
+    const token = localStorage.getItem("token");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
+    return config;
   },
-  error => {
-    return Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
   }
-)
+);
 
 // 获取所有申请
 export const getApplications = (params?: any) => {
-  return adminApi.get('/applications', { params })
-}
+  return adminApi.get("/applications", { params });
+};
 
 // 获取单个申请
 export const getApplication = (id: number) => {
-  return adminApi.get(`/admin/applications/${id}`)
-}
+  return adminApi.get(`/admin/applications/${id}`);
+};
+
+// 删除申请
+export const deleteApplication = (id: number) => {
+  return adminApi.delete(`/admin/applications/${id}`);
+};
 
 // 获取统计数据
 export const getStatistics = () => {
-  return adminApi.get('/admin/statistics')
-}
+  return adminApi.get("/admin/statistics");
+};
 
 // 创建用户
 export const createUser = (data: any) => {
-  return adminApi.post('/admin/users', data)
-}
+  return adminApi.post("/admin/users", data);
+};
 
-export default adminApi 
+export default adminApi;
