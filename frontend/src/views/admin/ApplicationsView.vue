@@ -38,6 +38,13 @@
             >搜索</el-button
           >
           <el-button @click="resetSearch" :icon="Refresh">重置</el-button>
+          <el-button
+            type="success"
+            @click="exportToExcel"
+            :icon="Download"
+            :loading="exportLoading"
+            >导出Excel</el-button
+          >
         </el-form-item>
       </el-form>
     </el-card>
@@ -165,10 +172,13 @@ import { ref, reactive, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { getApplications, deleteApplication } from "@/api/admin";
-import { Search, Refresh, Delete } from "@element-plus/icons-vue";
+import { Search, Refresh, Delete, Download } from "@element-plus/icons-vue";
+import * as XLSX from "xlsx";
+import FileSaver from "file-saver";
 
 const router = useRouter();
 const loading = ref(false);
+const exportLoading = ref(false);
 const applications = ref([]);
 
 // 删除相关
@@ -300,6 +310,122 @@ const confirmDelete = async () => {
     ElMessage.error("删除申请记录失败");
   } finally {
     deleteLoading.value = false;
+  }
+};
+
+// 导出Excel
+const exportToExcel = async () => {
+  try {
+    if (applications.value.length === 0) {
+      ElMessage.warning("没有数据可导出");
+      return;
+    }
+
+    exportLoading.value = true;
+
+    // 如果当前只加载了部分数据，询问是否导出所有数据
+    let dataToExport = [];
+
+    if (pagination.total > applications.value.length) {
+      const confirmResult = await ElMessageBox.confirm(
+        `当前页面只显示了${applications.value.length}条数据，共有${pagination.total}条数据。是否导出全部数据？`,
+        "导出确认",
+        {
+          confirmButtonText: "导出全部",
+          cancelButtonText: "仅导出当前页",
+          type: "warning",
+        }
+      ).catch(() => "cancel");
+
+      if (confirmResult === "confirm") {
+        // 导出全部数据，需要重新请求不分页的数据
+        const params = {
+          ...searchForm,
+          page: 1,
+          limit: pagination.total, // 获取所有数据
+        };
+
+        const response = await getApplications(params);
+        dataToExport = response.data.students || [];
+      } else {
+        // 仅导出当前页数据
+        dataToExport = applications.value;
+      }
+    } else {
+      // 当前数据已是全部，直接导出
+      dataToExport = applications.value;
+    }
+
+    // 定义Excel表头和对应的数据字段
+    const headers = [
+      { header: "ID", key: "id" },
+      { header: "姓名", key: "name" },
+      { header: "性别", key: "gender" },
+      { header: "身份证号", key: "idNumber" },
+      { header: "民族", key: "ethnicity" },
+      {
+        header: "出生日期",
+        key: "birthDate",
+        formatter: (val) => (val ? formatDate(val, false) : ""),
+      },
+      { header: "毕业学校", key: "graduationSchool" },
+      { header: "家庭住址", key: "homeAddress" },
+      { header: "监护人姓名", key: "guardianName" },
+      { header: "与学生关系", key: "guardianRelation" },
+      { header: "联系电话", key: "guardianContact" },
+      {
+        header: "申请时间",
+        key: "createdAt",
+        formatter: (val) => (val ? formatDate(val, true) : ""),
+      },
+    ];
+
+    // 转换数据格式
+    const excelData = dataToExport.map((item) => {
+      const row = {};
+      headers.forEach((header) => {
+        if (header.formatter) {
+          row[header.header] = header.formatter(item[header.key]);
+        } else {
+          row[header.header] = item[header.key];
+        }
+      });
+      return row;
+    });
+
+    // 创建工作簿和工作表
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // 设置列宽
+    const columnsWidth = headers.map(() => ({ wch: 15 }));
+    worksheet["!cols"] = columnsWidth;
+
+    // 将工作表添加到工作簿
+    XLSX.utils.book_append_sheet(workbook, worksheet, "申请列表");
+
+    // 生成Excel文件并下载
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const excelFile = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const date = new Date();
+    const fileName = `申请列表_${date.getFullYear()}${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}${date.getDate().toString().padStart(2, "0")}.xlsx`;
+
+    FileSaver.saveAs(excelFile, fileName);
+
+    ElMessage.success("导出成功");
+  } catch (error) {
+    console.error("导出Excel失败", error);
+    ElMessage.error("导出Excel失败");
+  } finally {
+    exportLoading.value = false;
   }
 };
 
