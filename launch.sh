@@ -2,7 +2,7 @@ git pull
 
 # 解压客户端文件
 cd frontend
-rm -rf dist node_modules package.json package-lock.json
+rm -rf dist node_modules package-lock.json
 mv ../client-dist.tar.gz .
 tar -xzf client-dist.tar.gz
 rm -rf client-dist.tar.gz
@@ -11,7 +11,7 @@ rm -rf client-dist.tar.gz
 cd ..
 # 进入服务端目录
 cd backend
-rm -rf dist node_modules package.json package-lock.json
+rm -rf dist node_modules package-lock.json
 mv ../server-dist.tar.gz .
 tar -xzf server-dist.tar.gz
 

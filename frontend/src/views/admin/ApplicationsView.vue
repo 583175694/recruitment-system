@@ -358,19 +358,18 @@ const exportToExcel = async () => {
 
     // 定义Excel表头和对应的数据字段
     const headers = [
-      { header: "ID", key: "id" },
       { header: "姓名", key: "name" },
       { header: "性别", key: "gender" },
       { header: "身份证号", key: "idNumber" },
-      { header: "民族", key: "ethnicity" },
       {
         header: "出生日期",
         key: "birthDate",
         formatter: (val) => (val ? formatDate(val, false) : ""),
       },
-      { header: "毕业学校", key: "graduationSchool" },
-      { header: "家庭住址", key: "homeAddress" },
+      { header: "民族", key: "ethnicity" },
       { header: "监护人姓名", key: "guardianName" },
+      { header: "家庭住址", key: "homeAddress" },
+      { header: "毕业学校", key: "graduationSchool" },
       { header: "与学生关系", key: "guardianRelation" },
       { header: "联系电话", key: "guardianContact" },
       {
@@ -378,6 +377,7 @@ const exportToExcel = async () => {
         key: "createdAt",
         formatter: (val) => (val ? formatDate(val, true) : ""),
       },
+      { header: "ID", key: "id" },
     ];
 
     // 转换数据格式
