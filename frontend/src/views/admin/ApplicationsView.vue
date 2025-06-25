@@ -174,7 +174,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { getApplications, deleteApplication } from "@/api/admin";
 import { Search, Refresh, Delete, Download } from "@element-plus/icons-vue";
 import * as XLSX from "xlsx";
-import FileSaver from "file-saver";
+import * as FileSaver from "file-saver";
 
 const router = useRouter();
 const loading = ref(false);
@@ -272,7 +272,7 @@ const handleSearch = () => {
 // 重置搜索
 const resetSearch = () => {
   Object.keys(searchForm).forEach((key) => {
-    searchForm[key] = "";
+    (searchForm as any)[key] = "";
   });
   handleSearch();
 };
@@ -362,27 +362,19 @@ const exportToExcel = async () => {
       { header: "性别", key: "gender" },
       { header: "身份证号", key: "idNumber" },
       {
-        header: "出生日期",
+        header: "出生年月",
         key: "birthDate",
-        formatter: (val) => (val ? formatDate(val, false) : ""),
+        formatter: (val: string) => (val ? formatDate(val, false) : ""),
       },
       { header: "民族", key: "ethnicity" },
-      { header: "监护人姓名", key: "guardianName" },
+      { header: "监护人", key: "guardianName" },
       { header: "家庭住址", key: "homeAddress" },
-      { header: "毕业学校", key: "graduationSchool" },
-      { header: "与学生关系", key: "guardianRelation" },
-      { header: "联系电话", key: "guardianContact" },
-      {
-        header: "申请时间",
-        key: "createdAt",
-        formatter: (val) => (val ? formatDate(val, true) : ""),
-      },
-      { header: "ID", key: "id" },
+      { header: "小学毕业学校", key: "graduationSchool" },
     ];
 
     // 转换数据格式
-    const excelData = dataToExport.map((item) => {
-      const row = {};
+    const excelData = dataToExport.map((item: any) => {
+      const row: any = {};
       headers.forEach((header) => {
         if (header.formatter) {
           row[header.header] = header.formatter(item[header.key]);
