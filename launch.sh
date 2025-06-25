@@ -12,10 +12,9 @@ cd ..
 # 进入服务端目录
 cd backend
 rm -rf dist node_modules package-lock.json
-mv ../server-dist.tar.gz .
-tar -xzf server-dist.tar.gz
 
 npm install
+npm run build
 pm2 delete recruitment-server
 pm2 start npm --name recruitment-server -- start
 rm -rf server-dist.tar.gz
