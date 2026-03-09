@@ -28,8 +28,8 @@ npm install
 echo "10. 构建服务端..."
 npm run build
 echo "11. 停止旧的服务进程..."
-pm2 delete recruitment-server
+pm2 delete recruitment-backend
 echo "12. 启动新的服务进程..."
-pm2 start npm --name recruitment-server -- start
+pm2 start npm --name recruitment-backend -- start
 
 echo "部署完成！"
