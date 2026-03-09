@@ -22,11 +22,9 @@ cd ..
 cd backend
 echo "8. 清理服务端旧文件..."
 rm -rf dist node_modules package-lock.json
-
-echo "9. 安装服务端依赖..."
-npm install
-echo "10. 构建服务端..."
-npm run build
+mv ../server-dist.tar.gz .
+tar -xzf server-dist.tar.gz
+rm -rf server-dist.tar.gz
 echo "11. 停止旧的服务进程..."
 pm2 delete recruitment-backend
 echo "12. 启动新的服务进程..."
