@@ -34,6 +34,7 @@ export class ApplicationController {
       idNumber: query.idNumber,
       gender: query.gender,
       graduationSchool: query.graduationSchool,
+      year: query.year ? parseInt(query.year, 10) : undefined,
       page: query.page ? parseInt(query.page, 10) : 1,
       limit: query.limit ? parseInt(query.limit, 10) : 10,
     };

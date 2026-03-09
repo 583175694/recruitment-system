@@ -58,6 +58,7 @@ export class ApplicationService {
       name,
       gender,
       graduationSchool,
+      year,
       page = 1,
       limit = 10,
     } = filters || {};
@@ -78,6 +79,15 @@ export class ApplicationService {
       queryBuilder.andWhere("student.graduationSchool LIKE :graduationSchool", {
         graduationSchool: `%${graduationSchool}%`,
       });
+    }
+
+    if (year) {
+      const startDate = `${year}-01-01 00:00:00`;
+      const endDate = `${year}-12-31 23:59:59`;
+      queryBuilder.andWhere(
+        "student.createdAt >= :startDate AND student.createdAt <= :endDate",
+        { startDate, endDate }
+      );
     }
 
     // 计算分页

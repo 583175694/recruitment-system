@@ -33,6 +33,23 @@
             <el-option label="女" value="女"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="申请年份" style="width: 200px">
+          <el-select
+            v-model="searchForm.year"
+            placeholder="请选择年份"
+            clearable
+            @clear="handleSearch"
+            @change="handleSearch"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="year in availableYears"
+              :key="year"
+              :label="year + '年'"
+              :value="year"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch" :icon="Search"
             >搜索</el-button
@@ -194,13 +211,26 @@ const searchForm = reactive({
   name: "",
   idNumber: "",
   gender: "",
+  year: "",
 });
+
+// 生成可选年份列表（从2020年到当前年份）
+const availableYears = ref<number[]>([]);
+const generateYears = () => {
+  const currentYear = new Date().getFullYear();
+  const startYear = 2020;
+  const years = [];
+  for (let year = currentYear; year >= startYear; year--) {
+    years.push(year);
+  }
+  availableYears.value = years;
+};
 
 // 监听搜索表单变化，实时更新UI
 watch(
-  () => [searchForm.gender],
+  () => searchForm.gender,
   () => {
-    // 防止表单值被清空后触发搜索
+    // 性别变化时自动搜索
     if (searchForm.gender !== undefined) {
       handleSearch();
     }
@@ -370,6 +400,7 @@ const exportToExcel = async () => {
       { header: "监护人", key: "guardianName" },
       { header: "家庭住址", key: "homeAddress" },
       { header: "小学毕业学校", key: "graduationSchool" },
+      { header: "联系电话", key: "guardianContact" },
     ];
 
     // 转换数据格式
@@ -423,6 +454,7 @@ const exportToExcel = async () => {
 
 // 组件挂载时加载数据
 onMounted(() => {
+  generateYears();
   loadApplications();
 });
 </script>
