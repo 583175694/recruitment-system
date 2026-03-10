@@ -18,6 +18,11 @@ const router = createRouter({
       component: () => import('@/views/application/ApplicationView.vue')
     },
     {
+      path: '/h5/apply',
+      name: 'H5Apply',
+      component: () => import('@/views/h5/H5ApplyView.vue')
+    },
+    {
       path: '/admin',
       name: 'Admin',
       component: () => import('@/views/admin/AdminLayout.vue'),
@@ -42,6 +47,21 @@ const router = createRouter({
           path: 'users',
           name: 'Users',
           component: () => import('@/views/admin/UsersView.vue')
+        },
+        {
+          path: 'qrcode',
+          name: 'QrCode',
+          component: () => import('@/views/admin/QrCodeView.vue')
+        },
+        {
+          path: 'h5-applications',
+          name: 'H5Applications',
+          component: () => import('@/views/admin/H5ApplicationsView.vue')
+        },
+        {
+          path: 'h5-applications/:id',
+          name: 'H5ApplicationDetail',
+          component: () => import('@/views/admin/H5ApplicationDetailView.vue')
         }
       ]
     }

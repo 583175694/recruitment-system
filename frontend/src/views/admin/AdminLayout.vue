@@ -22,6 +22,14 @@
             <el-icon><el-icon-document /></el-icon>
             <span>申请列表</span>
           </el-menu-item>
+          <el-menu-item index="/admin/qrcode">
+            <el-icon><el-icon-qrcode /></el-icon>
+            <span>二维码管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/h5-applications">
+            <el-icon><el-icon-tickets /></el-icon>
+            <span>家长提交记录</span>
+          </el-menu-item>
           <el-menu-item index="/admin/users">
             <el-icon><el-icon-setting /></el-icon>
             <span>用户管理</span>
