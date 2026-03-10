@@ -28,7 +28,16 @@ import { extname, join } from "path";
         password: configService.get("DB_PASSWORD", "123456"),
         database: configService.get("DB_DATABASE", "recruitment"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: configService.get<boolean>("DB_SYNCHRONIZE", true),
+        synchronize: configService.get<boolean>("DB_SYNCHRONIZE", false),
+        // 添加连接池配置，防止连接耗尽
+        extra: {
+          connectionLimit: 10, // 最大连接数
+          connectTimeout: 60000, // 连接超时
+          acquireTimeout: 60000, // 获取连接超时
+          timeout: 60000, // 查询超时
+        },
+        // 启用日志，方便排查问题
+        logging: configService.get<boolean>("DB_LOGGING", false),
       }),
     }),
 
