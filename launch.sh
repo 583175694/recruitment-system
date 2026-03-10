@@ -8,7 +8,7 @@ cd frontend
 echo "3. 清理客户端旧文件..."
 rm -rf dist node_modules package-lock.json
 echo "4. 安装客户端依赖 (pnpm)..."
-pnpm install
+pnpm install --frozen-lockfile
 echo "5. 构建客户端 (pnpm build)..."
 pnpm build
 
@@ -19,7 +19,7 @@ echo "7. 清理服务端旧文件..."
 rm -rf dist node_modules package-lock.json
 
 echo "8. 安装服务端依赖 (pnpm)..."
-pnpm install
+pnpm install --frozen-lockfile
 echo "9. 构建服务端 (pnpm build)..."
 pnpm build
 echo "10. 停止旧的服务进程..."
