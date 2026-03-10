@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcryptjs from 'bcryptjs';
 import { User } from '../../entity/user.entity';
 import { LoginDto } from './dto/login.dto';
 
@@ -23,7 +24,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials or inactive account');
     }
 
-    const isPasswordValid = password === user.password;
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }

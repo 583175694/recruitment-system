@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Student } from "../../entity/student.entity";
+import * as bcryptjs from "bcryptjs";
 import { User, UserRole } from "../../entity/user.entity";
 
 @Injectable()
@@ -64,9 +65,11 @@ export class AdminService {
       throw new BadRequestException("用户名已存在");
     }
 
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
     const user = this.userRepository.create({
       username,
-      password,
+      password: hashedPassword,
       name,
       role,
     });
