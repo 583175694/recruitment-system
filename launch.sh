@@ -20,6 +20,8 @@ rm -rf dist node_modules
 
 echo "8. 安装服务端依赖 (pnpm --frozen-lockfile)..."
 pnpm install --frozen-lockfile
+echo "8.1. 重新编译原生模块..."
+pnpm rebuild bcrypt
 echo "9. 构建服务端 (pnpm build)..."
 pnpm build
 echo "10. 停止旧的服务进程..."
