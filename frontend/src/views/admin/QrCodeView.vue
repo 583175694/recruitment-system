@@ -106,11 +106,17 @@ export default defineComponent({
     const qrCodeList = ref<QrCode[]>([]);
     const qrCanvas = ref<HTMLCanvasElement | null>(null);
 
-    const H5_BASE_URL = (import.meta.env.VITE_H5_BASE_URL || window.location.origin);
+    const getH5BaseUrl = () => {
+      if (import.meta.env.VITE_H5_BASE_URL) return import.meta.env.VITE_H5_BASE_URL;
+      // 取当前页面 # 之前的完整路径（含 /recruitment/index.html 等前缀）
+      const href = window.location.href;
+      const hashIndex = href.indexOf('#');
+      return hashIndex !== -1 ? href.slice(0, hashIndex) : href;
+    };
 
     const h5Url = computed(() => {
       if (!activeQrCode.value) return '';
-      return `${H5_BASE_URL}/#/h5/apply?token=${activeQrCode.value.token}`;
+      return `${getH5BaseUrl()}#/h5/apply?token=${activeQrCode.value.token}`;
     });
 
     const renderQrCode = async () => {
