@@ -6,6 +6,7 @@ import { AdminModule } from "./modules/admin/admin.module";
 import { ApplicationModule } from "./modules/application/application.module";
 import { QrCodeModule } from "./modules/qrcode/qrcode.module";
 import { H5ApplicationModule } from "./modules/h5-application/h5-application.module";
+import { TeacherUploadModule } from "./modules/teacher-upload/teacher-upload.module";
 import { MulterModule } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname, join } from "path";
@@ -66,6 +67,7 @@ import { extname, join } from "path";
     ApplicationModule,
     QrCodeModule,
     H5ApplicationModule,
+    TeacherUploadModule,
   ],
 })
 export class AppModule {}

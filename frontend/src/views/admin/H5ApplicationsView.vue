@@ -39,9 +39,25 @@
         <el-table-column prop="gender" label="性别" width="80" />
         <el-table-column prop="graduationSchool" label="毕业学校" width="200" />
         <el-table-column prop="contactPhone" label="联系电话" width="130" />
+        <el-table-column prop="schoolDistrict" label="所属区域" width="120">
+          <template #default="{ row }">
+            {{ row.schoolDistrict || '—' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="serialNumber" label="序号" width="80">
+          <template #default="{ row }">
+            {{ row.serialNumber || '—' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="honors" label="荣誉数量" width="100">
           <template #default="{ row }">
-            {{ row.honors.length }}
+            {{ row.honors ? row.honors.length : 0 }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="sourceType" label="来源" width="100">
+          <template #default="{ row }">
+            <el-tag v-if="row.sourceType === 'teacher'" type="info">教师录入</el-tag>
+            <el-tag v-else>家长提交</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">

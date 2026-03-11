@@ -62,6 +62,11 @@ const router = createRouter({
           path: 'h5-applications/:id',
           name: 'H5ApplicationDetail',
           component: () => import('@/views/admin/H5ApplicationDetailView.vue')
+        },
+        {
+          path: 'teacher-upload',
+          name: 'TeacherUpload',
+          component: () => import('@/views/admin/TeacherUploadView.vue')
         }
       ]
     }

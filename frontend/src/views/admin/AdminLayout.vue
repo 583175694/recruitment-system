@@ -30,6 +30,10 @@
             <el-icon><el-icon-tickets /></el-icon>
             <span>家长提交记录</span>
           </el-menu-item>
+          <el-menu-item index="/admin/teacher-upload">
+            <el-icon><el-icon-upload /></el-icon>
+            <span>教师上传简历</span>
+          </el-menu-item>
           <el-menu-item index="/admin/users">
             <el-icon><el-icon-setting /></el-icon>
             <span>用户管理</span>
